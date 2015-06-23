@@ -40,7 +40,7 @@ console.log('hi');
 
 res.send(html);
 //connection
-/*
+
 var mysql = require('mysql');
 var HOST = 'localhost';
 var PORT = 8083;
@@ -77,8 +77,9 @@ var dataQuery="INSERT IGNORE INTO table1 (Username,Email) VALUES ('"+userName+"'
 
 
 
-connection.end();*/
-}//validation if end
+connection.end();
+}
+//validation if end
 else
 {
 
