@@ -8,7 +8,6 @@ var app = express();
 app.use(bodyParser());
 
 app.get('/', function(req, res){
-
   var html = '<form action="/" method="post">' +
                'Enter Number of Question:' +
                '<input type="number" name="Q_number" value="10"/>'
