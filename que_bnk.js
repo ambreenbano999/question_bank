@@ -51,9 +51,6 @@ dialog.info('Please enter valid Question numbers and Total time');
 
 });//post end
 
-
-/////////////////////////////////////////
-
 app.listen(8083);
 
 
