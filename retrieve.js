@@ -15,7 +15,7 @@ app.use(bodyParser());
   var T_time = 1;
   var que="Hi this is question number ";
   var opt = ["option_a", "option_b", "option_c","option_d"];
-  var idrand= new Array(10000);
+  var idrand=new Array();
   var i=1;
   
 /*
@@ -92,6 +92,12 @@ app.get('/', function(req, res){
 
 app.post('/', function(req, res)
 {
+  var start=Math.ceil(Math.random()*9999);;
+  var initial=start;
+  var count=0;
+  var index=0;
+  var flag=0;
+
   var Q_number = req.body.Q_number;
   var T_time = req.body.T_time;
   var html = 'Your Question Bank is Downloaded' +
@@ -127,27 +133,22 @@ var connection = mysql.createConnection
 //PDF Creation
 var PDF = require('pdfkit');            
 var fs = require('fs');
+
 //create pdf object
 doc = new PDF();   
+
 //create write object
 var file = fs.createWriteStream('que_bank.pdf');
-
 doc.pipe(file);   
 
 
 //make connection
 connection.connect();
 connection.query('USE question');//database which we want to use
-
-
-for (i = 1; i <= 20; i++) 
-  idrand[i]=Math.floor(Math.random()*16);
-
-//for (i = 1; i <= 10; i++) 
-//{ 
+ 
 
   //query to insert data in the database
- connection.query("SELECT * FROM table2 WHERE time IN(1,2,3,4,5)", function(err, rows)
+ connection.query("SELECT * FROM table2", function(err, rows)
  {
   
     if(err)
@@ -158,24 +159,60 @@ for (i = 1; i <= 20; i++)
     {
       //console.log(rows.length);
 
-var j=1;
-var temp=4;
 
+  while(count<T_time)
+  {
+    if(rows[start].time+count<=T_time)
+    {
+    idrand[index]=start;
+    index++;
+    count=count+rows[start].time;
+    console.log("id ="+start);
+    }
+
+  start++;
+
+  if(start>10000)
+    {
+    start=1;
+    flag=1;
+    }
+  else if(flag==1 && start>=initial)
+    {
+      break;
+    }
+  }
+
+  console.log(idrand.toString());
+
+connection.query("SELECT * FROM table2 where id in ("+idrand.toString()+")", function(err, rows)
+  {
+  
+  if(err)
+    {
+      console.log(myQuery);
+      throw err;
+    }
+  else
+    {
+
+      console.log("all is fetch");
 
 doc.fontSize(20);//font size of the pdf file
 doc.text("QUESTION BANK",205,300);
 doc.text("MAXIMUM MARKS :"+Q_number,190,340);
 doc.text("TOTAL TIME :"+T_time,220,380);
 doc.moveDown().text("");
-doc.text("NUMBER OF OBJECTIVE QUESTIONS :10",100,410);
+doc.text("NUMBER OF OBJECTIVE QUESTIONS :"+rows.length,100,410);
 doc.text("NUMBER OF SUBJECTIIIVE QUESTION :3",100,440);
 doc.addPage();
 
-
+var j=1;
+var temp=4;
 
 doc.fontSize(11.5);//font size of the pdf file
 
-for(j=1;j<=10;j++)
+for(j=0;j<rows.length;j++)
 {
 doc.text("Question ID :"+rows[j].id);  //adding the text to be written, 
 doc.moveDown().text(rows[j].que);
@@ -191,15 +228,20 @@ doc.moveDown().text("");//for new line
     
   }*/
 }
-doc.end(); 
+doc.end();
 
+      connection.end();//connection from mysql end
+    }
+  });  
+  
 
-   }//else end
+ }//else end
         
  });//query end
-//}//for loop end
 
-connection.end();//connection from mysql end
+
+
+
 
 res.send(html);//pdf downloaded message to the user
 }//validation if end
