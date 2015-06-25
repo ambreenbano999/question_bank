@@ -1,12 +1,13 @@
 
 var express = require('express');
 var bodyParser = require('body-parser');
-var app = express();
-app.use(bodyParser());
-
+var http = require('http');
 var validator = require('validator');
 var dialog = require('dialog');
  
+var app = express();
+app.use(bodyParser());
+
 
 
 //variables
@@ -93,8 +94,6 @@ app.post('/', function(req, res)
 {
   var Q_number = req.body.Q_number;
   var T_time = req.body.T_time;
-  
-  
   var html = 'Your Question Bank is Downloaded' +
               '.<br>' +
              '<a href="/">Generate another Question Bank.</a>';
@@ -129,9 +128,12 @@ var connection = mysql.createConnection
 var PDF = require('pdfkit');            
 var fs = require('fs');
 //create pdf object
-doc = new PDF();                        
+doc = new PDF();   
 //create write object
-doc.pipe(fs.createWriteStream('que_bank1.pdf'));   
+var file = fs.createWriteStream('que_bank.pdf');
+
+doc.pipe(file);   
+
 
 //make connection
 connection.connect();
@@ -159,6 +161,18 @@ for (i = 1; i <= 20; i++)
 var j=1;
 var temp=4;
 
+
+doc.fontSize(20);//font size of the pdf file
+doc.text("QUESTION BANK",205,300);
+doc.text("MAXIMUM MARKS :"+Q_number,190,340);
+doc.text("TOTAL TIME :"+T_time,220,380);
+doc.moveDown().text("");
+doc.text("NUMBER OF OBJECTIVE QUESTIONS :10",100,410);
+doc.text("NUMBER OF SUBJECTIIIVE QUESTION :3",100,440);
+doc.addPage();
+
+
+
 doc.fontSize(11.5);//font size of the pdf file
 
 for(j=1;j<=10;j++)
@@ -183,8 +197,6 @@ doc.end();
    }//else end
         
  });//query end
-   
-
 //}//for loop end
 
 connection.end();//connection from mysql end
@@ -193,9 +205,7 @@ res.send(html);//pdf downloaded message to the user
 }//validation if end
 else
 {
-
 dialog.info('Please enter valid Question numbers and Total time');
-
 }
 
 
